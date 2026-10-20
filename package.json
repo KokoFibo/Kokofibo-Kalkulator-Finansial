@@ -1,0 +1,9 @@
+{
+  "name": "finance-calculator-app",
+  "version": "2.0.0",
+  "private": true,
+  "description": "A responsive financial calculator for future value, present value, loans, and savings goals, plus a standard calculator.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

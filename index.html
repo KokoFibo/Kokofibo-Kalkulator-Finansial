@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" id="themeColor" content="#f4f0e8">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Kalkulator finansial untuk menghitung nilai masa depan, nilai sekarang, cicilan pinjaman, dan target dana dalam Rupiah.">
+  <title>Kalkulator Finansial — Kokofibo</title>
+  <link rel="icon" href="favicon-kokofibo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="finance.css">
+  <script>
+    (function () {
+      try {
+        var saved =
+          localStorage.getItem("kokofibo.theme.v1") ||
+          localStorage.getItem("tumbuh.theme.v1");
+        var preferred = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+        document.documentElement.dataset.theme = saved || preferred;
+      } catch (error) {
+        document.documentElement.dataset.theme = "light";
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <span class="ambient-shape ambient-shape--one"></span>
+    <span class="ambient-shape ambient-shape--two"></span>
+    <span class="ambient-grid"></span>
+  </div>
+
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 44 44" fill="none">
+            <path d="M13.5 11.5v21" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M30.5 12 17.5 22 31 32" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="33.5" cy="10.5" r="2.2" fill="var(--logo-dot)"/>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <span class="brand-name">Kokofibo</span>
+          <span class="brand-tagline">Kalkulator finansial</span>
+        </span>
+      </a>
+
+      <div class="topbar-actions">
+        <span class="currency-badge">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M8 5.2v5.6M6.4 7h3.2M6.4 9h3.2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+          </svg>
+          Rupiah · IDR
+        </span>
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Ganti ke tema gelap">
+          <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20.2 15.3A8.5 8.5 0 0 1 8.7 3.8 8.5 8.5 0 1 0 20.2 15.3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4M18.7 18.7l-1.4-1.4M6.7 6.7 5.3 5.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="pageTitle">
+        <div class="intro-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span>Perencanaan keuangan pribadi</p>
+          <h1 id="pageTitle">Buat uangmu <em>bekerja.</em></h1>
+          <p class="intro-text">Hitung nilai masa depan, nilai sekarang, cicilan, dan target dana dengan asumsi yang transparan.</p>
+        </div>
+        <div class="intro-note">
+          <span class="intro-note-line"></span>
+          <p>Semua dalam Rupiah.<br><span>Tanpa biaya. Tanpa pendaftaran.</span></p>
+        </div>
+      </section>
+
+      <nav class="tool-tabs-wrap" aria-label="Pilih kalkulator">
+        <div class="tool-tabs" role="tablist" aria-label="Jenis kalkulator finansial">
+          <button class="tool-tab is-active" id="tab-future" type="button" role="tab" aria-selected="true" aria-controls="panel-future" tabindex="0" data-tool="future">
+            <span class="tool-tab-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 19V9m5 10V5m5 14v-7m5 7V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="m3.5 9.5 5-4 5 3 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
+              </svg>
+            </span>
+            <span class="tool-tab-copy">
+              <span class="tool-tab-name">Nilai masa depan</span>
+              <span class="tool-tab-sub">Future value</span>
+            </span>
+          </button>
+
+          <button class="tool-tab" id="tab-present" type="button" role="tab" aria-selected="false" aria-controls="panel-present" tabindex="-1" data-tool="present">
+            <span class="tool-tab-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3L4.5 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4.5 4.5V9H9M12 8v4l2.7 1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="tool-tab-copy">
+              <span class="tool-tab-name">Nilai sekarang</span>
+              <span class="tool-tab-sub">Present value</span>
+            </span>
+          </button>
+
+          <button class="tool-tab" id="tab-loan" type="button" role="tab" aria-selected="false" aria-controls="panel-loan" tabindex="-1" data-tool="loan">
+            <span class="tool-tab-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="m3.5 10.5 8.5-7 8.5 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5.5 9.5v10h13v-10M9.5 19.5v-5.2h5v5.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="tool-tab-copy">
+              <span class="tool-tab-name">Cicilan pinjaman</span>
+              <span class="tool-tab-sub">Loan payment</span>
+            </span>
+          </button>
+
+          <button class="tool-tab" id="tab-goal" type="button" role="tab" aria-selected="false" aria-controls="panel-goal" tabindex="-1" data-tool="goal">
+            <span class="tool-tab-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="1.2" fill="currentColor"/>
+              </svg>
+            </span>
+            <span class="tool-tab-copy">
+              <span class="tool-tab-name">Target dana</span>
+              <span class="tool-tab-sub">Savings goal</span>
+            </span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="sr-only" id="liveSummary" aria-live="polite" aria-atomic="true"></div>
+
+      <section class="tool-panel" id="panel-future" role="tabpanel" aria-labelledby="tab-future" tabindex="0">
+        <div class="tool-grid">
+          <form class="panel-card input-card" id="fv-form" novalidate>
+            <div class="card-head">
+              <div>
+                <p class="card-kicker">Asumsi</p>
+                <h2>Rencana investasi</h2>
+              </div>
+              <button class="reset-button" type="button" data-reset="fv-form" aria-label="Reset asumsi nilai masa depan">
+                <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4.2 6.3A6 6 0 1 1 3 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  <path d="M4.4 2.8v3.8H.7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Reset
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="fv-initial">Dana awal</label>
+                <div class="input-shell">
+                  <span class="input-affix">Rp</span>
+                  <input id="fv-initial" name="initial" type="text" inputmode="numeric" autocomplete="off" value="25.000.000" data-money aria-describedby="fv-initial-error">
+                </div>
+                <small class="field-error" id="fv-initial-error"></small>
+              </div>
+
+              <div class="field">
+                <label for="fv-monthly">Setoran bulanan</label>
+                <div class="input-shell">
+                  <span class="input-affix">Rp</span>
+                  <input id="fv-monthly" name="monthly" type="text" inputmode="numeric" autocomplete="off" value="2.000.000" data-money aria-describedby="fv-monthly-error">
+                </div>
+                <small class="field-error" id="fv-monthly-error"></small>
+              </div>
+
+              <div class="field field--half">
+                <label for="fv-rate">Imbal hasil / tahun</label>
+                <div class="input-shell">
+                  <input id="fv-rate" name="rate" type="number" inputmode="decimal" min="-20" max="100" step="0.1" value="8" aria-describedby="fv-rate-help fv-rate-error">
+                  <span class="input-suffix">%</span>
+                </div>
+                <small class="field-help" id="fv-rate-help">Asumsi nominal</small>
+                <small class="field-error" id="fv-rate-error"></small>
+              </div>
+
+              <div class="field field--half">
+                <label for="fv-years">Durasi</label>
+                <div class="input-shell">
+                  <input id="fv-years" name="years" type="number" inputmode="decimal" min="0.5" max="60" step="1" value="10" aria-describedby="fv-years-error">
+                  <span class="input-suffix">tahun</span>
+                </div>
+                <small class="field-error" id="fv-years-error"></small>
+              </div>
+
+              <div class="field">
+                <label for="fv-compound">Frekuensi bunga</label>
+                <div class="select-shell">
+                  <select id="fv-compound" name="compounds" aria-describedby="fv-compound-help">
+                    <option value="12" selected>Bulanan</option>
+                    <option value="4">Kuartalan</option>
+                    <option value="1">Tahunan</option>
+                  </select>
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <small class="field-help" id="fv-compound-help">Bunga majemuk sesuai periode ini</small>
+              </div>
+            </div>
+
+            <div class="form-live">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span id="fv-effective">Bunga efektif 8,30% per tahun</span>
+            </div>
+          </form>
+
+          <div class="results-column">
+            <article class="result-hero result-hero--future">
+              <div class="hero-rings" aria-hidden="true"></div>
+              <div class="hero-top">
+                <span class="hero-label">Estimasi nilai masa depan</span>
+                <span class="hero-period" id="fv-period">10 tahun</span>
+              </div>
+              <div class="hero-number" id="fv-hero-number">
+                <span class="hero-currency">Rp</span>
+                <span class="hero-value" id="fv-value">—</span>
+              </div>
+              <p class="hero-caption" id="fv-caption">Dana akhir setelah periode investasi.</p>
+              <span class="hero-badge" id="fv-badge">Bunga efektif —</span>
+            </article>
+
+            <div class="stats-grid">
+              <article class="stat-card">
+                <span class="stat-label">Total setoran</span>
+                <strong class="stat-value" id="fv-total">—</strong>
+                <small class="stat-note">Dana awal + setoran</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Hasil investasi</span>
+                <strong class="stat-value stat-value--accent" id="fv-growth">—</strong>
+                <small class="stat-note">Bunga yang bertumbuh</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Rasio hasil</span>
+                <strong class="stat-value" id="fv-ratio">—</strong>
+                <small class="stat-note">Terhadap total setoran</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Bunga efektif</span>
+                <strong class="stat-value" id="fv-effective-stat">—</strong>
+                <small class="stat-note">Per tahun</small>
+              </article>
+            </div>
+
+            <article class="panel-card chart-card">
+              <div class="card-head card-head--chart">
+                <div>
+                  <p class="card-kicker">Proyeksi</p>
+                  <h3>Pertumbuhan dana</h3>
+                </div>
+                <div class="chart-legend" aria-hidden="true">
+                  <span><i class="legend-dot legend-dot--accent"></i>Total dana</span>
+                  <span><i class="legend-dot legend-dot--muted"></i>Setoran</span>
+                </div>
+              </div>
+              <div class="chart" id="fv-chart" role="img" aria-label="Grafik pertumbuhan dana"></div>
+              <p class="chart-insight" id="fv-insight">Masukkan asumsi untuk melihat proyeksi.</p>
+            </article>
+
+            <details class="method-card">
+              <summary>
+                <span>Metode perhitungan</span>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="method-body">
+                <code>FV = PV × (1 + r)<sup>n</sup> + PMT × ((1 + r)<sup>n</sup> − 1) ÷ r</code>
+                <p>PV adalah dana awal, PMT adalah setoran bulanan, r adalah bunga bulanan ekuivalen, dan n adalah jumlah bulan. Setoran dianggap dilakukan di akhir setiap bulan.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="tool-panel" id="panel-present" role="tabpanel" aria-labelledby="tab-present" tabindex="0" hidden>
+        <div class="tool-grid">
+          <form class="panel-card input-card" id="pv-form" novalidate>
+            <div class="card-head">
+              <div>
+                <p class="card-kicker">Asumsi</p>
+                <h2>Target di masa depan</h2>
+              </div>
+              <button class="reset-button" type="button" data-reset="pv-form" aria-label="Reset asumsi nilai sekarang">
+                <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4.2 6.3A6 6 0 1 1 3 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  <path d="M4.4 2.8v3.8H.7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Reset
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="pv-target">Target dana</label>
+                <div class="input-shell">
+                  <span class="input-affix">Rp</span>
+                  <input id="pv-target" name="target" type="text" inputmode="numeric" autocomplete="off" value="500.000.000" data-money aria-describedby="pv-target-error">
+                </div>
+                <small class="field-error" id="pv-target-error"></small>
+              </div>
+
+              <div class="field field--half">
+                <label for="pv-rate">Imbal hasil / tahun</label>
+                <div class="input-shell">
+                  <input id="pv-rate" name="rate" type="number" inputmode="decimal" min="-20" max="100" step="0.1" value="8" aria-describedby="pv-rate-help pv-rate-error">
+                  <span class="input-suffix">%</span>
+                </div>
+                <small class="field-help" id="pv-rate-help">Asumsi nominal</small>
+                <small class="field-error" id="pv-rate-error"></small>
+              </div>
+
+              <div class="field field--half">
+                <label for="pv-years">Durasi</label>
+                <div class="input-shell">
+                  <input id="pv-years" name="years" type="number" inputmode="decimal" min="0.5" max="60" step="1" value="15" aria-describedby="pv-years-error">
+                  <span class="input-suffix">tahun</span>
+                </div>
+                <small class="field-error" id="pv-years-error"></small>
+              </div>
+
+              <div class="field">
+                <label for="pv-compound">Frekuensi bunga</label>
+                <div class="select-shell">
+                  <select id="pv-compound" name="compounds" aria-describedby="pv-compound-help">
+                    <option value="12" selected>Bulanan</option>
+                    <option value="4">Kuartalan</option>
+                    <option value="1">Tahunan</option>
+                  </select>
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <small class="field-help" id="pv-compound-help">Bunga majemuk sesuai periode ini</small>
+              </div>
+            </div>
+
+            <div class="form-live">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span id="pv-effective">Bunga efektif 8,30% per tahun</span>
+            </div>
+          </form>
+
+          <div class="results-column">
+            <article class="result-hero result-hero--present">
+              <div class="hero-rings" aria-hidden="true"></div>
+              <div class="hero-top">
+                <span class="hero-label">Nilai sekarang yang dibutuhkan</span>
+                <span class="hero-period" id="pv-period">15 tahun</span>
+              </div>
+              <div class="hero-number" id="pv-hero-number">
+                <span class="hero-currency">Rp</span>
+                <span class="hero-value" id="pv-value">—</span>
+              </div>
+              <p class="hero-caption" id="pv-caption">Modal awal untuk mencapai target.</p>
+              <span class="hero-badge" id="pv-badge">Bunga efektif —</span>
+            </article>
+
+            <div class="stats-grid">
+              <article class="stat-card">
+                <span class="stat-label">Potensi pertumbuhan</span>
+                <strong class="stat-value stat-value--accent" id="pv-growth">—</strong>
+                <small class="stat-note">Selisih dari target</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Rasio pertumbuhan</span>
+                <strong class="stat-value" id="pv-ratio">—</strong>
+                <small class="stat-note">Dari nilai akhir</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Target dana</span>
+                <strong class="stat-value" id="pv-target-result">—</strong>
+                <small class="stat-note">Nilai di masa depan</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Bunga efektif</span>
+                <strong class="stat-value" id="pv-effective-stat">—</strong>
+                <small class="stat-note">Per tahun</small>
+              </article>
+            </div>
+
+            <article class="panel-card chart-card">
+              <div class="card-head card-head--chart">
+                <div>
+                  <p class="card-kicker">Proyeksi</p>
+                  <h3>Jalur menuju target</h3>
+                </div>
+                <div class="chart-legend" aria-hidden="true">
+                  <span><i class="legend-dot legend-dot--accent"></i>Nilai investasi</span>
+                </div>
+              </div>
+              <div class="chart" id="pv-chart" role="img" aria-label="Grafik pertumbuhan nilai investasi"></div>
+              <p class="chart-insight" id="pv-insight">Masukkan asumsi untuk melihat proyeksi.</p>
+            </article>
+
+            <details class="method-card">
+              <summary>
+                <span>Metode perhitungan</span>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="method-body">
+                <code>PV = FV ÷ (1 + r)<sup>n</sup></code>
+                <p>FV adalah target dana, r adalah bunga bulanan ekuivalen, dan n adalah jumlah bulan. Nilai sekarang menunjukkan modal yang perlu disiapkan hari ini.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="tool-panel" id="panel-loan" role="tabpanel" aria-labelledby="tab-loan" tabindex="0" hidden>
+        <div class="tool-grid">
+          <form class="panel-card input-card" id="loan-form" novalidate>
+            <div class="card-head">
+              <div>
+                <p class="card-kicker">Asumsi</p>
+                <h2>Detail pinjaman</h2>
+              </div>
+              <button class="reset-button" type="button" data-reset="loan-form" aria-label="Reset asumsi cicilan pinjaman">
+                <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4.2 6.3A6 6 0 1 1 3 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  <path d="M4.4 2.8v3.8H.7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Reset
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="loan-principal">Pokok pinjaman</label>
+                <div class="input-shell">
+                  <span class="input-affix">Rp</span>
+                  <input id="loan-principal" name="principal" type="text" inputmode="numeric" autocomplete="off" value="500.000.000" data-money aria-describedby="loan-principal-error">
+                </div>
+                <small class="field-error" id="loan-principal-error"></small>
+              </div>
+
+              <div class="field field--half">
+                <label for="loan-rate">Bunga / tahun</label>
+                <div class="input-shell">
+                  <input id="loan-rate" name="rate" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="7.5" aria-describedby="loan-rate-help loan-rate-error">
+                  <span class="input-suffix">%</span>
+                </div>
+                <small class="field-help" id="loan-rate-help">Bunga tetap</small>
+                <small class="field-error" id="loan-rate-error"></small>
+              </div>
+
+              <div class="field field--half">
+                <label for="loan-years">Tenor</label>
+                <div class="input-shell">
+                  <input id="loan-years" name="years" type="number" inputmode="numeric" min="1" max="40" step="1" value="15" aria-describedby="loan-years-error">
+                  <span class="input-suffix">tahun</span>
+                </div>
+                <small class="field-error" id="loan-years-error"></small>
+              </div>
+            </div>
+
+            <div class="form-live">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span id="loan-effective">Angsuran tetap dengan bunga efektif 7,76% per tahun</span>
+            </div>
+            <p class="form-footnote">Perhitungan belum termasuk biaya admin, provisi, asuransi, dan pajak.</p>
+          </form>
+
+          <div class="results-column">
+            <article class="result-hero result-hero--loan">
+              <div class="hero-rings" aria-hidden="true"></div>
+              <div class="hero-top">
+                <span class="hero-label">Angsuran per bulan</span>
+                <span class="hero-period" id="loan-period">180 bulan</span>
+              </div>
+              <div class="hero-number" id="loan-hero-number">
+                <span class="hero-currency">Rp</span>
+                <span class="hero-value" id="loan-value">—</span>
+              </div>
+              <p class="hero-caption" id="loan-caption">Angsuran tetap hingga pinjaman lunas.</p>
+              <span class="hero-badge" id="loan-badge">Bunga — dari total pembayaran</span>
+            </article>
+
+            <div class="stats-grid">
+              <article class="stat-card">
+                <span class="stat-label">Total pembayaran</span>
+                <strong class="stat-value" id="loan-total">—</strong>
+                <small class="stat-note">Pokok + bunga</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Total bunga</span>
+                <strong class="stat-value stat-value--warm" id="loan-interest">—</strong>
+                <small class="stat-note">Biaya dana</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Rasio bunga</span>
+                <strong class="stat-value" id="loan-ratio">—</strong>
+                <small class="stat-note">Dari total pembayaran</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Pokok pinjaman</span>
+                <strong class="stat-value" id="loan-principal-result">—</strong>
+                <small class="stat-note">Jumlah yang dipinjam</small>
+              </article>
+            </div>
+
+            <article class="panel-card chart-card">
+              <div class="card-head card-head--chart">
+                <div>
+                  <p class="card-kicker">Komposisi</p>
+                  <h3>Ke mana pembayaranmu pergi?</h3>
+                </div>
+                <span class="mini-pill">Total</span>
+              </div>
+              <div class="loan-chart-layout">
+                <div class="donut-chart" id="loan-donut" role="img" aria-label="Komposisi pokok dan bunga pinjaman"></div>
+                <div class="donut-legend">
+                  <div class="donut-legend-row">
+                    <span><i class="legend-dot legend-dot--accent"></i>Pokok pinjaman</span>
+                    <strong id="loan-legend-principal">—</strong>
+                  </div>
+                  <div class="donut-legend-row">
+                    <span><i class="legend-dot legend-dot--warm"></i>Total bunga</span>
+                    <strong id="loan-legend-interest">—</strong>
+                  </div>
+                </div>
+              </div>
+              <p class="chart-insight" id="loan-insight">Semakin lama tenor, semakin besar porsi bunga.</p>
+            </article>
+
+            <article class="panel-card schedule-card">
+              <div class="card-head card-head--chart">
+                <div>
+                  <p class="card-kicker">Rincian</p>
+                  <h3>Jadwal amortisasi</h3>
+                </div>
+                <span class="mini-pill">Per tahun</span>
+              </div>
+              <div class="table-wrap">
+                <table class="schedule-table">
+                  <caption class="sr-only">Rincian pembayaran pokok, bunga, dan sisa pinjaman per tahun</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Tahun</th>
+                      <th scope="col">Pokok</th>
+                      <th scope="col">Bunga</th>
+                      <th scope="col">Total</th>
+                      <th scope="col">Sisa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="loan-schedule">
+                    <tr><td colspan="5">Masukkan detail pinjaman.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <details class="method-card">
+              <summary>
+                <span>Metode perhitungan</span>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="method-body">
+                <code>PMT = P × r ÷ (1 − (1 + r)<sup>−n</sup>)</code>
+                <p>P adalah pokok pinjaman, r adalah bunga bulanan, dan n adalah jumlah bulan. Skema ini mengasumsikan bunga tetap dan angsuran anuitas.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="tool-panel" id="panel-goal" role="tabpanel" aria-labelledby="tab-goal" tabindex="0" hidden>
+        <div class="tool-grid">
+          <form class="panel-card input-card" id="goal-form" novalidate>
+            <div class="card-head">
+              <div>
+                <p class="card-kicker">Asumsi</p>
+                <h2>Tujuan finansialmu</h2>
+              </div>
+              <button class="reset-button" type="button" data-reset="goal-form" aria-label="Reset asumsi target dana">
+                <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4.2 6.3A6 6 0 1 1 3 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  <path d="M4.4 2.8v3.8H.7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Reset
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="goal-target">Target dana</label>
+                <div class="input-shell">
+                  <span class="input-affix">Rp</span>
+                  <input id="goal-target" name="target" type="text" inputmode="numeric" autocomplete="off" value="1.000.000.000" data-money aria-describedby="goal-target-error">
+                </div>
+                <small class="field-error" id="goal-target-error"></small>
+              </div>
+
+              <div class="field">
+                <label for="goal-current">Dana saat ini</label>
+                <div class="input-shell">
+                  <span class="input-affix">Rp</span>
+                  <input id="goal-current" name="current" type="text" inputmode="numeric" autocomplete="off" value="100.000.000" data-money aria-describedby="goal-current-error">
+                </div>
+                <small class="field-error" id="goal-current-error"></small>
+              </div>
+
+              <div class="field field--half">
+                <label for="goal-rate">Imbal hasil / tahun</label>
+                <div class="input-shell">
+                  <input id="goal-rate" name="rate" type="number" inputmode="decimal" min="-20" max="100" step="0.1" value="7" aria-describedby="goal-rate-help goal-rate-error">
+                  <span class="input-suffix">%</span>
+                </div>
+                <small class="field-help" id="goal-rate-help">Asumsi nominal</small>
+                <small class="field-error" id="goal-rate-error"></small>
+              </div>
+
+              <div class="field field--half">
+                <label for="goal-years">Durasi</label>
+                <div class="input-shell">
+                  <input id="goal-years" name="years" type="number" inputmode="decimal" min="0.5" max="60" step="1" value="12" aria-describedby="goal-years-error">
+                  <span class="input-suffix">tahun</span>
+                </div>
+                <small class="field-error" id="goal-years-error"></small>
+              </div>
+
+              <div class="field">
+                <label for="goal-compound">Frekuensi bunga</label>
+                <div class="select-shell">
+                  <select id="goal-compound" name="compounds" aria-describedby="goal-compound-help">
+                    <option value="12" selected>Bulanan</option>
+                    <option value="4">Kuartalan</option>
+                    <option value="1">Tahunan</option>
+                  </select>
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <small class="field-help" id="goal-compound-help">Bunga majemuk sesuai periode ini</small>
+              </div>
+            </div>
+
+            <div class="form-live">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span id="goal-effective">Bunga efektif 7,23% per tahun</span>
+            </div>
+          </form>
+
+          <div class="results-column">
+            <article class="result-hero result-hero--goal">
+              <div class="hero-rings" aria-hidden="true"></div>
+              <div class="hero-top">
+                <span class="hero-label">Setoran bulanan yang dibutuhkan</span>
+                <span class="hero-period" id="goal-period">12 tahun</span>
+              </div>
+              <div class="hero-number" id="goal-hero-number">
+                <span class="hero-currency">Rp</span>
+                <span class="hero-value" id="goal-value">—</span>
+              </div>
+              <p class="hero-caption" id="goal-caption">Sisihkan rutin untuk mencapai target.</p>
+              <div class="hero-progress">
+                <div class="hero-progress-top">
+                  <span>Progres saat ini</span>
+                  <strong id="goal-progress-label">—</strong>
+                </div>
+                <div class="progress-track">
+                  <span class="progress-fill" id="goal-progress-bar"></span>
+                </div>
+              </div>
+            </article>
+
+            <div class="stats-grid">
+              <article class="stat-card">
+                <span class="stat-label">Total setoran</span>
+                <strong class="stat-value" id="goal-total">—</strong>
+                <small class="stat-note">Dana awal + setoran</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Hasil investasi</span>
+                <strong class="stat-value stat-value--accent" id="goal-growth">—</strong>
+                <small class="stat-note">Pertumbuhan dana</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Dana saat ini</span>
+                <strong class="stat-value" id="goal-current-result">—</strong>
+                <small class="stat-note">Modal awal</small>
+              </article>
+              <article class="stat-card">
+                <span class="stat-label">Progres target</span>
+                <strong class="stat-value" id="goal-progress-stat">—</strong>
+                <small class="stat-note">Dana saat ini</small>
+              </article>
+            </div>
+
+            <article class="panel-card chart-card">
+              <div class="card-head card-head--chart">
+                <div>
+                  <p class="card-kicker">Proyeksi</p>
+                  <h3>Jalur menuju target</h3>
+                </div>
+                <div class="chart-legend" aria-hidden="true">
+                  <span><i class="legend-dot legend-dot--accent"></i>Proyeksi dana</span>
+                  <span><i class="legend-dot legend-dot--target"></i>Target</span>
+                </div>
+              </div>
+              <div class="chart" id="goal-chart" role="img" aria-label="Grafik proyeksi dana menuju target"></div>
+              <p class="chart-insight" id="goal-insight">Masukkan asumsi untuk melihat proyeksi.</p>
+            </article>
+
+            <details class="method-card">
+              <summary>
+                <span>Metode perhitungan</span>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="method-body">
+                <code>PMT = (Target − Dana awal × (1 + r)<sup>n</sup>) × r ÷ ((1 + r)<sup>n</sup> − 1)</code>
+                <p>Setoran dihitung agar target tercapai tepat pada akhir periode. Jika dana awal sudah cukup untuk mencapai target, setoran bulanan menjadi nol.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-info">
+        <p class="footer-disclaimer"><strong>Catatan:</strong> Hasil adalah estimasi berdasarkan asumsi yang dimasukkan, bukan saran atau jaminan keuangan.</p>
+        <p class="footer-legal">
+          <span>© <span id="copyrightYear">2026</span> Kokofibo. Seluruh hak cipta dilindungi.</span>
+          <span class="footer-separator" aria-hidden="true">·</span>
+          <a class="footer-credit" href="https://kokofibo.com" target="_blank" rel="noopener noreferrer">Web design by Kokofibo.com</a>
+        </p>
+      </div>
+      <a class="footer-standard" href="standard.html">Kalkulator standar
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3.5 8h9M9 4.5 12.5 8 9 11.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </footer>
+  </div>
+
+  <noscript>
+    <div class="noscript">Aktifkan JavaScript untuk menggunakan kalkulator finansial ini.</div>
+  </noscript>
+
+  <script src="finance-engine.js" defer></script>
+  <script src="finance.js" defer></script>
+</body>
+</html>

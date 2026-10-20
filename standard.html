@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" id="themeColor" content="#090d13">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="A fast, elegant calculator with live results, keyboard support, and saved history.">
+  <title>Calculator</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem("calculator.theme.v1");
+        var preferredTheme = window.matchMedia("(prefers-color-scheme: light)").matches
+          ? "light"
+          : "dark";
+        document.documentElement.dataset.theme = savedTheme || preferredTheme;
+      } catch (error) {
+        document.documentElement.dataset.theme = "dark";
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <span class="ambient-orb ambient-orb--one"></span>
+    <span class="ambient-orb ambient-orb--two"></span>
+    <span class="ambient-orb ambient-orb--three"></span>
+  </div>
+
+  <div class="app-frame">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="brand-copy">
+          <p class="brand-kicker">Everyday math</p>
+          <h1>Calculator</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Switch to light theme">
+          <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20.2 15.3A8.5 8.5 0 0 1 8.7 3.8 8.5 8.5 0 1 0 20.2 15.3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4M18.7 18.7l-1.4-1.4M6.7 6.7 5.3 5.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <button class="icon-button history-trigger" id="historyToggle" type="button" aria-label="Open history" aria-controls="historyPanel" aria-expanded="false">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.5 4v4.5H8M12 7.8V12l2.8 1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="count-badge" id="historyCount" aria-hidden="true" hidden>0</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="calculator-card" aria-labelledby="calculatorTitle">
+        <h2 class="sr-only" id="calculatorTitle">Calculator</h2>
+
+        <div class="calc-header">
+          <span class="mode-pill"><span class="status-dot"></span>Standard</span>
+          <span class="keyboard-hint"><kbd>Enter</kbd> to calculate</span>
+        </div>
+
+        <div class="display-panel" id="displayPanel">
+          <div class="display-meta">
+            <span class="expression" id="expression" aria-hidden="true"></span>
+            <span class="preview" id="preview" aria-hidden="true" hidden></span>
+          </div>
+          <div class="display-value" id="display" role="status" aria-live="polite" aria-atomic="true">0</div>
+        </div>
+
+        <div class="keypad" id="keypad" role="group" aria-label="Calculator keys">
+          <button class="key key--function" type="button" data-action="clear" aria-label="All clear (AC)">AC</button>
+          <button class="key key--function" type="button" data-action="backspace" aria-label="Delete last digit">
+            <svg class="key-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9L3 12l6-7Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              <path d="m12.5 9.5 5 5m0-5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button class="key key--function" type="button" data-action="percent" aria-label="Percent">%</button>
+          <button class="key key--operator" type="button" data-action="operator" data-value="/" aria-label="Divide">÷</button>
+
+          <button class="key" type="button" data-action="digit" data-value="7">7</button>
+          <button class="key" type="button" data-action="digit" data-value="8">8</button>
+          <button class="key" type="button" data-action="digit" data-value="9">9</button>
+          <button class="key key--operator" type="button" data-action="operator" data-value="*" aria-label="Multiply">×</button>
+
+          <button class="key" type="button" data-action="digit" data-value="4">4</button>
+          <button class="key" type="button" data-action="digit" data-value="5">5</button>
+          <button class="key" type="button" data-action="digit" data-value="6">6</button>
+          <button class="key key--operator" type="button" data-action="operator" data-value="-" aria-label="Subtract">−</button>
+
+          <button class="key" type="button" data-action="digit" data-value="1">1</button>
+          <button class="key" type="button" data-action="digit" data-value="2">2</button>
+          <button class="key" type="button" data-action="digit" data-value="3">3</button>
+          <button class="key key--operator" type="button" data-action="operator" data-value="+" aria-label="Add">+</button>
+
+          <button class="key key--function key--sign" type="button" data-action="sign" aria-label="Toggle positive or negative">±</button>
+          <button class="key" type="button" data-action="digit" data-value="0">0</button>
+          <button class="key" type="button" data-action="decimal" aria-label="Decimal point">.</button>
+          <button class="key key--equals" type="button" data-action="equals" aria-label="Equals">=</button>
+        </div>
+
+        <p class="sr-only" id="keyboardHelp">
+          Use the number keys, plus, minus, asterisk, slash, percent, Enter, Backspace, and Escape.
+        </p>
+      </section>
+
+      <aside class="history-panel" id="historyPanel" aria-labelledby="historyTitle">
+        <div class="history-header">
+          <div>
+            <p class="panel-kicker">Recent</p>
+            <h2 id="historyTitle">History</h2>
+          </div>
+          <div class="history-header-actions">
+            <button class="text-button" id="clearHistory" type="button" disabled>Clear</button>
+            <button class="icon-button history-close" id="closeHistory" type="button" aria-label="Close history">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="history-body">
+          <div class="history-empty" id="historyEmpty">
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" fill="none">
+                <path d="M6 16a10 10 0 1 0 3-7.1L6 11.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 6v5.7h5.7M16 10.7V16l3.6 2.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <p>Nothing here yet</p>
+            <span>Finished calculations will appear here, ready to reuse.</span>
+          </div>
+          <ol class="history-list" id="historyList" aria-label="Calculation history" hidden></ol>
+        </div>
+
+        <p class="history-footnote" id="historyFootnote" hidden>
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 4v4l2.5 1.5M13.5 8A5.5 5.5 0 1 1 8 2.5 5.5 5.5 0 0 1 13.5 8Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          Tap a result to keep calculating.
+        </p>
+      </aside>
+    </main>
+
+    <div class="history-backdrop" id="historyBackdrop" aria-hidden="true"></div>
+  </div>
+
+  <script src="engine.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>

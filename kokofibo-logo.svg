@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="112" viewBox="0 0 400 112" role="img" aria-labelledby="kokoTitle kokoDesc">
+  <title id="kokoTitle">Kokofibo</title>
+  <desc id="kokoDesc">Logo Kokofibo dengan monogram K dan aksen emas.</desc>
+  <defs>
+    <linearGradient id="kokoBg" x1="16" y1="12" x2="92" y2="100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#08503f"/>
+      <stop offset="1" stop-color="#0e7a5d"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="16" width="80" height="80" rx="24" fill="url(#kokoBg)"/>
+  <rect x="8.75" y="16.75" width="78.5" height="78.5" rx="23.25" fill="none" stroke="#ffffff" stroke-opacity="0.14"/>
+  <g transform="translate(8 16) scale(1.81818)" fill="none" stroke="#f5fff9" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 16.5v31"/>
+    <path d="M44 17 25.5 32 44.5 47"/>
+  </g>
+  <circle cx="93.5" cy="44.2" r="5.8" fill="#e7bc6f"/>
+  <text x="106" y="62" fill="#16241e" font-family="'Segoe UI Variable Display', 'Segoe UI', Arial, sans-serif" font-size="36" font-weight="700" letter-spacing="-1.4">Kokofibo</text>
+  <text x="108" y="83" fill="#6d7a72" font-family="'Segoe UI Variable Display', 'Segoe UI', Arial, sans-serif" font-size="10" font-weight="600" letter-spacing="2.6">FINANCIAL CALCULATOR</text>
+</svg>

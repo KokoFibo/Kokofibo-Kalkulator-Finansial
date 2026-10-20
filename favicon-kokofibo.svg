@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Kokofibo">
+  <defs>
+    <linearGradient id="kbg" x1="6" y1="4" x2="58" y2="62" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#08503f"/>
+      <stop offset="1" stop-color="#0e7a5d"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="17" fill="url(#kbg)"/>
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="16.25" fill="none" stroke="#ffffff" stroke-opacity="0.14"/>
+  <g fill="none" stroke="#f5fff9" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 16.5v31"/>
+    <path d="M44 17 25.5 32 44.5 47"/>
+  </g>
+  <circle cx="47" cy="15.5" r="3.2" fill="#e7bc6f"/>
+</svg>
